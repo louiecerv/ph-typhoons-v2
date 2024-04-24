@@ -36,7 +36,11 @@ def app():
     st.write(text)  
 
     df = pd.read_csv('./PH-TYPHOONS2000-2023.csv', header=0)
+    df['date'] = pd.to_datetime(df['Month'])
+    df.drop(columns=['Month'], inplace=True)    
 
+    # Set the 'date' column as the index
+    df.set_index('date', inplace=True)
 
     with st.expander("Show Dataset"):
         st.write("The TIme Series Dataset")
@@ -57,10 +61,10 @@ def app():
     ax.xaxis.set_major_locator(locator)
     st.pyplot(fig)
 
-    df['date'] = pd.to_datetime(df['Month'])
 
-    # Set the 'date' column as the index
-    df.set_index('date', inplace=True)
+
+    st.write("The data before normalization:")
+    st.write(df.head()) 
 
     # Normalize the data
     scaler = MinMaxScaler(feature_range=(0, 1))
