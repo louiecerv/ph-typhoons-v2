@@ -104,28 +104,20 @@ def app():
             tf.keras.layers.Dense(1)
         ])
     elif model_type == 'GRU':
-        # Define the improved model architecture
         model = tf.keras.Sequential([
+        # Stacked GRU with Dropout
             tf.keras.layers.GRU(128, return_sequences=True, input_shape=(look_back, n_features)),
             tf.keras.layers.Dropout(0.3),
-            
-            # Add another GRU layer for better feature extraction
-            tf.keras.layers.GRU(64, return_sequences=True),
+            tf.keras.layers.GRU(128, return_sequences=True),
             tf.keras.layers.Dropout(0.2),
             
-            # Reduce the complexity of the model to prevent overfitting
-            tf.keras.layers.GRU(32),
+            # Dense layers with L1/L2 regularization and different activations
+            tf.keras.layers.Dense(64, activation='leaky_relu', kernel_regularizer=tf.keras.regularizers.l1_l2(l1=0.01, l2=0.01)),
             tf.keras.layers.Dropout(0.1),
-            
-            # Introduce a dense layer with more neurons for better representation
-            tf.keras.layers.Dense(64, activation='relu'),  # Add dense layer with ReLU activation
+            tf.keras.layers.Dense(32, activation='gated_tanh'),
             tf.keras.layers.Dropout(0.1),
-            
-            # Add one more dense layer for better learning
-            tf.keras.layers.Dense(32, activation='relu'),  # Add dense layer with ReLU activation
-            tf.keras.layers.Dropout(0.1),
-            
-            # Output layer with one neuron for regression task
+
+            # Output layer
             tf.keras.layers.Dense(1)
         ])
             
