@@ -78,6 +78,17 @@ def app():
     y_train = y_train.to_numpy()
     y_test = y_test.to_numpy()
 
+    options = ['LSTM', 'GRU']
+    # Create the option box using st.selectbox
+    selected_option = st.sidebar.selectbox("Select model type:", options)
+    model_type = selected_option
+
+    st.sidebar.write("Lookback is the number of months for the model to consider when making predictions.")
+    options = ['12', '24', '36', '48', '60']
+    # Create the option box using st.selectbox
+    selected_option = st.sidebar.selectbox("Set lookback:", options, index=2)
+    look_back = int(selected_option)   
+    
     n_features = 1  # Number of features in your typhoon data
 
     if model_type == 'LSTM':
