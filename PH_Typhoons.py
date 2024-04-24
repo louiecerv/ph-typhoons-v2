@@ -59,7 +59,7 @@ def app():
 
     # Normalize the data
     scaler = MinMaxScaler(feature_range=(0, 1))
-    data_norm = scaler.fit_transform(df.iloc[:,0].values.reshape(-1, 1))
+    data_norm = scaler.fit_transform(df.iloc[:,1].values.reshape(-1, 1))
     data_norm = pd.DataFrame(data_norm)
     st.session_state.data_norm = data_norm
 
