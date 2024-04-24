@@ -114,7 +114,7 @@ def app():
             # Dense layers with L1/L2 regularization and different activations
             tf.keras.layers.Dense(64, activation='leaky_relu', kernel_regularizer=tf.keras.regularizers.l1_l2(l1=0.01, l2=0.01)),
             tf.keras.layers.Dropout(0.1),
-            tf.keras.layers.Dense(32, activation='gated_tanh'),
+            tf.keras.layers.Dense(32, activation='leaky_relu'),
             tf.keras.layers.Dropout(0.1),
 
             # Output layer
