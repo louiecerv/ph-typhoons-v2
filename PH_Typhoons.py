@@ -86,7 +86,7 @@ def app():
     model_type = selected_option
 
     st.sidebar.write("Lookback is the number of months for the model to consider when making predictions.")
-    options = ['12', '24', '36', '48', '60', '72'. '84'. '96', '108', '120', '132', '144', '156', '168', '180']
+    options = ['12', '24', '36', '48', '60', '72', '84', '96', '108', '120', '132', '144', '156', '168', '180', '192', '204', '216', '228', '240', '252', '264', '276']
     # Create the option box using st.selectbox
     selected_option = st.sidebar.selectbox("Set lookback:", options, index=9)
     look_back = int(selected_option)   
@@ -94,13 +94,13 @@ def app():
     n_features = 1  # Number of features in your typhoon data
 
     if model_type == 'LSTM':
-        model =  tf.keras.Sequential([  
+        model = tf.keras.Sequential([
             tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(128, return_sequences=True), input_shape=(look_back, n_features)),
-            tf.keras.layers.Dropout(0.3),
-            tf.keras.layers.GRU(64, return_sequences=True),  # Another GRU layer
-            tf.keras.layers.Dropout(0.2),
-            tf.keras.layers.GRU(32),  # Reduced units for final layer
-            tf.keras.layers.Dropout(0.1),
+            tf.keras.layers.Dropout(0.2),  # Adjusted dropout rate
+            tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(64, return_sequences=True)),  # Additional LSTM layer
+            tf.keras.layers.Dropout(0.2),  # Adjusted dropout rate
+            tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(32)),  # Additional LSTM layer
+            tf.keras.layers.Dropout(0.2),  # Adjusted dropout rate
             tf.keras.layers.Dense(1)
         ])
     elif model_type == 'GRU':
