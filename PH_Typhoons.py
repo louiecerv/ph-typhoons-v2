@@ -46,10 +46,10 @@ def app():
     st.write("The Typhoon Count 2000-2023")
 
     fig, ax = plt.subplots()  
-    ax.plot(df['sales'])
-    ax.set_title('Sales Over Time')
+    ax.plot(df['Typhoons'])
+    ax.set_title('Typhoons Over Time')
     ax.set_xlabel('Date')
-    ax.set_ylabel('Sales')
+    ax.set_ylabel('No. of Typhoons')
     ax.grid(True)  
     # Limit the number of ticks on the x-axis to 10 (adjust as needed)
     plt.xticks(rotation=45)  # Rotate x-axis labels for better readability (optional)
@@ -88,7 +88,7 @@ def app():
     # Create the option box using st.selectbox
     selected_option = st.sidebar.selectbox("Set lookback:", options, index=2)
     look_back = int(selected_option)   
-    
+
     n_features = 1  # Number of features in your typhoon data
 
     if model_type == 'LSTM':
@@ -198,8 +198,8 @@ def app():
         # Convert predvalues to integers
         predvalues_int = predvalues.astype(int)
 
-        # Create a DataFrame with a column named "sales"
-        predvalues = pd.DataFrame({'sales': predvalues_int.flatten()})
+        # Create a DataFrame with a column named "Typhoons"
+        predvalues = pd.DataFrame({'Typhoons': predvalues_int.flatten()})
 
         # use the same index as the original data
         predvalues.index = df.index
@@ -230,43 +230,43 @@ def app():
         prednext = [int(x) for x in prednext]
 
         end_dates = {
-            12: '2018-12',
-            24: '2019-12',
-            36: '2020-12',
-            48: '2021-12',
-            60: '2022-12',
-            72: '2023-12'
+            12: '2024-12',
+            24: '2025-12',
+            36: '2026-12',
+            48: '2027-12',
+            60: '2028-12',
+            72: '2029-12'
         }
 
         end = end_dates.get(pred_period, None)
 
-        months = pd.date_range(start='2018-01', end=end, freq='MS')
+        months = pd.date_range(start='2024-01', end=end, freq='MS')
 
-        # Create a DataFrame with a column named "sales"
-        nextyear = pd.DataFrame(prednext, index=months, columns=["sales"])
+        # Create a DataFrame with a column named "Typhoons"
+        nextyear = pd.DataFrame(prednext, index=months, columns=["Typhoons"])
 
         # Concatenate along the rows (axis=0)
         combined_df = pd.concat([df, nextyear], axis=0)
 
         fig, ax = plt.subplots(figsize=(10, 6))
-        ax.set_title('Comparison of Actual and Predicted Sales')
+        ax.set_title('Comparison of Actual and Predicted Number of Typhoons')
 
-        ax.plot(predvalues['sales'], color='red', linestyle='--', label='Model Predictions')  # dotted line for model predictions
+        ax.plot(predvalues['Typhoons'], color='red', linestyle='--', label='Model Predictions')  # dotted line for model predictions
 
-        # Plot df's sales values with one linestyle
-        ax.plot(df['sales'], color = 'blue', linestyle='-', label='Original Data')
+        # Plot df's Typhoons values with one linestyle
+        ax.plot(df['Typhoons'], color = 'blue', linestyle='-', label='Original Data')
 
-        # Plot projected sales values with a different linestyle
-        ax.plot(combined_df.index[len(df):], combined_df['sales'][len(df):], color = 'red', marker = 'o', linestyle='-', label='Projected Sales')
+        # Plot projected Typhoons values with a different linestyle
+        ax.plot(combined_df.index[len(df):], combined_df['Typhoons'][len(df):], color = 'red', marker = 'o', linestyle='-', label='Projected Typhoons')
 
-        max_y_value = max(df['sales'].values.max(), nextyear['sales'].max()) + 2
+        max_y_value = max(df['Typhoons'].values.max(), nextyear['Typhoons'].max()) + 2
         ax.set_ylim(0, max_y_value)
 
         ax.set_xlabel('\nMonth', fontsize=20, fontweight='bold')
-        ax.set_ylabel('Sales', fontsize=20, fontweight='bold')
+        ax.set_ylabel('Typhoons', fontsize=20, fontweight='bold')
 
         ax.set_xlabel('Month')
-        ax.set_ylabel('Sales')
+        ax.set_ylabel('Typhoons')
         ax.grid(True)
         ax.tick_params(axis='x', rotation=45)
         # Add the legend
@@ -274,43 +274,43 @@ def app():
         fig.tight_layout()
         st.pyplot(fig)
 
-        st.write('Predicted Sales for the next', years, 'years:')
+        st.write('Predicted Typhoons for the next', years, 'years:')
 
         fig, ax = plt.subplots(figsize=(10, 6))
-        ax.plot(nextyear['sales'], marker='o', linestyle='-')
-        ax.set_title('Projected Sales Over Time')
+        ax.plot(nextyear['Typhoons'], marker='o', linestyle='-')
+        ax.set_title('Projected Number of Typhoons Over Time')
         ax.set_xlabel('Month')
-        ax.set_ylabel('Sales')
+        ax.set_ylabel('No. of Typhoons')
         ax.grid(True)
         ax.tick_params(axis='x', rotation=45)
         fig.tight_layout()
         st.pyplot(fig)
 
-        with st.expander("Show Predicted Sales Table"):
+        with st.expander("Show Predicted Typhoons Table"):
             st.write("The Predicted Dataset")
             st.write(nextyear)   
             st.write(nextyear.shape)
 
         with st.expander("Read About the Lookback"):
             text = """When discussing the performance of an RNN LSTM (Recurrent Neural 
-            Network Long Short-Term Memory) model on item sales forecast data, it's 
+            Network Long Short-Term Memory) model on item Typhoons forecast data, it's 
             crucial to consider the impact of the "lookback" period on the model's 
             predictive capability. The "lookback" period refers to the number of 
             previous time steps the model uses to make predictions. In your scenario, 
             the lookback period is varied between 12 months and 36 months.
             \nWhen the lookback is set to a small number, such as 12 months, 
             the model is better at capturing short-term patterns and fluctuations 
-            in sales data. This is because it focuses on recent history, enabling it 
+            in Typhoons data. This is because it focuses on recent history, enabling it 
             to adapt quickly to changes in consumer behavior, seasonal trends, or 
             promotional activities. As a result, the model may exhibit strong 
-            performance in predicting the changing patterns of sales over shorter 
+            performance in predicting the changing patterns of Typhoons over shorter 
             time horizons.
             \nHowever, as the lookback period increases to 36 months or longer, 
             the model's ability to capture short-term fluctuations diminishes. 
             Instead, it starts to emphasize longer-term trends and patterns in the data. 
             While this may lead to more stable and consistent predictions over longer 
             time horizons, it may also result in a loss of sensitivity to short-term dynamics. 
-            Consequently, the model may predict lower sales overall, as it focuses more on 
+            Consequently, the model may predict lower Typhoons overall, as it focuses more on 
             the average behavior observed over the extended period.
             \nIn essence, the choice of lookback period involves a trade-off 
             between capturing short-term fluctuations and maintaining a broader 
