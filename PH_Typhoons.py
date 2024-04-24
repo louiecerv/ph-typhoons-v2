@@ -55,16 +55,9 @@ def app():
     ax.set_xlabel('Date')
     ax.set_ylabel('No. of Typhoons')
     ax.grid(True)  
-    # Limit the number of ticks on the x-axis to 10 (adjust as needed)
-    plt.xticks(rotation=45)  # Rotate x-axis labels for better readability (optional)
-    locator = plt.MaxNLocator(nbins=10)
-    ax.xaxis.set_major_locator(locator)
+    ax.tick_params(axis='x', rotation=45)   
     st.pyplot(fig)
 
-
-
-    st.write("The data before normalization:")
-    st.write(df.head()) 
 
     # Normalize the data
     scaler = MinMaxScaler(feature_range=(0, 1))
@@ -93,9 +86,9 @@ def app():
     model_type = selected_option
 
     st.sidebar.write("Lookback is the number of months for the model to consider when making predictions.")
-    options = ['12', '24', '36', '48', '60']
+    options = ['12', '24', '36', '48', '60', '72'. '84'. '96', '108', '120', '132', '144', '156', '168', '180']
     # Create the option box using st.selectbox
-    selected_option = st.sidebar.selectbox("Set lookback:", options, index=2)
+    selected_option = st.sidebar.selectbox("Set lookback:", options, index=9)
     look_back = int(selected_option)   
 
     n_features = 1  # Number of features in your typhoon data
