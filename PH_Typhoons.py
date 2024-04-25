@@ -4,8 +4,12 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import StandardScaler
+
 import matplotlib.pyplot as plt
 import time
+from tensorflow.keras.regularizers import L1L2
+from tensorflow.keras.optimizers import Adam
 
 if "data_norm" not in st.session_state:
     st.session_state.data_norm = None
@@ -58,9 +62,9 @@ def app():
     ax.tick_params(axis='x', rotation=45)   
     st.pyplot(fig)
 
-
     # Normalize the data
     scaler = MinMaxScaler(feature_range=(0, 1))
+    #scaler = StandardScaler()
     data_norm = scaler.fit_transform(df.iloc[:,0].values.reshape(-1, 1))
     data_norm = pd.DataFrame(data_norm)
     st.session_state.data_norm = data_norm
@@ -96,33 +100,34 @@ def app():
     if model_type == 'LSTM':
         model = tf.keras.Sequential([
             tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(128, return_sequences=True), input_shape=(look_back, n_features)),
-            tf.keras.layers.Dropout(0.2),  # Adjusted dropout rate
-            tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(64, return_sequences=True)),  # Additional LSTM layer
-            tf.keras.layers.Dropout(0.2),  # Adjusted dropout rate
-            tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(32)),  # Additional LSTM layer
-            tf.keras.layers.Dropout(0.2),  # Adjusted dropout rate
+            tf.keras.layers.Dropout(0.2),
+            tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(64, return_sequences=True)),
+            tf.keras.layers.Dropout(0.2),
+            tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(32)),
+            tf.keras.layers.Dropout(0.2),
             tf.keras.layers.Dense(1)
         ])
+ 
     elif model_type == 'GRU':
         model = tf.keras.Sequential([
-        # Stacked GRU with Dropout
-            tf.keras.layers.GRU(128, return_sequences=True, input_shape=(look_back, n_features)),
-            tf.keras.layers.Dropout(0.3),
-            tf.keras.layers.GRU(128, return_sequences=True),
-            tf.keras.layers.Dropout(0.2),
-            
-            # Dense layers with L1/L2 regularization and different activations
-            tf.keras.layers.Dense(64, activation='leaky_relu', kernel_regularizer=tf.keras.regularizers.l1_l2(l1=0.01, l2=0.01)),
-            tf.keras.layers.Dropout(0.1),
-            tf.keras.layers.Dense(32, activation='leaky_relu'),
-            tf.keras.layers.Dropout(0.1),
-
-            # Output layer
+            tf.keras.layers.Bidirectional(tf.keras.layers.GRU(128, return_sequences=True), input_shape=(look_back, n_features)),
+            tf.keras.layers.Dropout(0.2),  # Adjusted dropout rate
+            tf.keras.layers.Bidirectional(tf.keras.layers.GRU(64, return_sequences=True)),  # Additional GRU layer
+            tf.keras.layers.Dropout(0.2),  # Adjusted dropout rate
+            tf.keras.layers.Bidirectional(tf.keras.layers.GRU(32)),  # Additional GRU layer
+            tf.keras.layers.Dropout(0.2),  # Adjusted dropout rate
             tf.keras.layers.Dense(1)
         ])
-            
+                    
     # Compile the model
-    model.compile(loss="mse", optimizer="adam")  # You can adjust loss and optimizer based on your needs
+    # Define a lower learning rate
+    learning_rate = 0.00001  # You can adjust this value as needed
+
+    # Create an optimizer object with the desired learning rate
+    optimizer = Adam(learning_rate=learning_rate)
+
+    # Compile the model specifying the optimizer
+    model.compile(loss="mse", optimizer=optimizer)
 
     # Print model summary
     model.summary()
