@@ -63,7 +63,7 @@ def app():
     st.pyplot(fig)
 
     # Normalize the data
-    scaler = MinMaxScaler(feature_range=(0, 1))
+    scaler = MinMaxScaler(feature_range=(-1, 1))
     #scaler = StandardScaler()
     data_norm = scaler.fit_transform(df.iloc[:,0].values.reshape(-1, 1))
     data_norm = pd.DataFrame(data_norm)
@@ -98,30 +98,14 @@ def app():
     n_features = 1  # Number of features in your typhoon data
 
     if model_type == 'LSTM':
-        model = tf.keras.Sequential([
-            tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(128, return_sequences=True), input_shape=(look_back, n_features)),
-            tf.keras.layers.Dropout(0.2),
-            tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(64, return_sequences=True)),
-            tf.keras.layers.Dropout(0.2),
-            tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(32)),
-            tf.keras.layers.Dropout(0.2),
-            tf.keras.layers.Dense(1)
-        ])
+        model = peak_prediction_model(look_back, n_features)
  
     elif model_type == 'GRU':
-        model = tf.keras.Sequential([
-            tf.keras.layers.Bidirectional(tf.keras.layers.GRU(128, return_sequences=True), input_shape=(look_back, n_features)),
-            tf.keras.layers.Dropout(0.2),  # Adjusted dropout rate
-            tf.keras.layers.Bidirectional(tf.keras.layers.GRU(64, return_sequences=True)),  # Additional GRU layer
-            tf.keras.layers.Dropout(0.2),  # Adjusted dropout rate
-            tf.keras.layers.Bidirectional(tf.keras.layers.GRU(32)),  # Additional GRU layer
-            tf.keras.layers.Dropout(0.2),  # Adjusted dropout rate
-            tf.keras.layers.Dense(1)
-        ])
+        model = gru_model(look_back, n_features)
                     
     # Compile the model
     # Define a lower learning rate
-    learning_rate = 0.00001  # You can adjust this value as needed
+    learning_rate = 0.0001  # You can adjust this value as needed
 
     # Create an optimizer object with the desired learning rate
     optimizer = Adam(learning_rate=learning_rate)
@@ -318,6 +302,30 @@ def app():
             longer periods. Conversely, a longer lookback period provides a more 
             stable outlook but may overlook short-term dynamics."""
             st.write(text)
+
+def peak_prediction_model(look_back, n_features):
+    model = tf.keras.Sequential([
+        tf.keras.layers.Bidirectional(tf.keras.layers.GRU(128, return_sequences=True), input_shape=(look_back, n_features)),
+        tf.keras.layers.Dropout(0.2),  # Adjusted dropout rate
+        tf.keras.layers.Bidirectional(tf.keras.layers.GRU(64, return_sequences=True)),  # Additional GRU layer
+        tf.keras.layers.Dropout(0.2),  # Adjusted dropout rate
+        tf.keras.layers.Bidirectional(tf.keras.layers.GRU(32)),  # Additional GRU layer
+        tf.keras.layers.Dropout(0.2),  # Adjusted dropout rate
+        tf.keras.layers.Dense(1, activation="linear")
+    ])
+    return model
+
+def gru_model(look_back, n_features):
+    model = tf.keras.Sequential([
+        tf.keras.layers.Bidirectional(tf.keras.layers.GRU(128, return_sequences=True), input_shape=(look_back, n_features)),
+        tf.keras.layers.Dropout(0.2),  # Adjusted dropout rate
+        tf.keras.layers.Bidirectional(tf.keras.layers.GRU(64, return_sequences=True)),  # Additional GRU layer
+        tf.keras.layers.Dropout(0.2),  # Adjusted dropout rate
+        tf.keras.layers.Bidirectional(tf.keras.layers.GRU(32)),  # Additional GRU layer
+        tf.keras.layers.Dropout(0.2),  # Adjusted dropout rate
+        tf.keras.layers.Dense(1, activation="linear")
+    ])
+    return model
 
 if __name__ == '__main__':
     app()   
