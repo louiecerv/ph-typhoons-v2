@@ -98,14 +98,14 @@ def app():
     n_features = 1  # Number of features in your typhoon data
 
     if model_type == 'LSTM':
-        model = peak_prediction_model(look_back, n_features)
+        model = lstm_model(look_back, n_features)
  
     elif model_type == 'GRU':
         model = gru_model(look_back, n_features)
                     
     # Compile the model
     # Define a lower learning rate
-    learning_rate = 0.0001  # You can adjust this value as needed
+    learning_rate = 0.001  # You can adjust this value as needed
 
     # Create an optimizer object with the desired learning rate
     optimizer = Adam(learning_rate=learning_rate)
@@ -119,7 +119,7 @@ def app():
     if st.sidebar.button("Start Training"):
         if "model" not in st.session_state:
             st.session_state.model = model
-        progress_bar = st.progress(0, text="Training the LSTM network, please wait...")           
+        progress_bar = st.progress(0, text="Training the prediction model, please wait...")           
         # Train the model
         history = model.fit(x_train, y_train, epochs=500, batch_size=64, validation_data=(x_test, y_test))
 
@@ -303,27 +303,24 @@ def app():
             stable outlook but may overlook short-term dynamics."""
             st.write(text)
 
-def peak_prediction_model(look_back, n_features):
+def lstm_model(look_back, n_features):
     model = tf.keras.Sequential([
-        tf.keras.layers.Bidirectional(tf.keras.layers.GRU(128, return_sequences=True), input_shape=(look_back, n_features)),
-        tf.keras.layers.Dropout(0.2),  # Adjusted dropout rate
-        tf.keras.layers.Bidirectional(tf.keras.layers.GRU(64, return_sequences=True)),  # Additional GRU layer
-        tf.keras.layers.Dropout(0.2),  # Adjusted dropout rate
-        tf.keras.layers.Bidirectional(tf.keras.layers.GRU(32)),  # Additional GRU layer
-        tf.keras.layers.Dropout(0.2),  # Adjusted dropout rate
-        tf.keras.layers.Dense(1, activation="linear")
+        tf.keras.layers.Bidirectional(tf.keras.layers.GRU(64, return_sequences=True), input_shape=(look_back, n_features)),
+        tf.keras.layers.BatchNormalization(),
+        tf.keras.layers.Dropout(0.2),
+        tf.keras.layers.Bidirectional(tf.keras.layers.GRU(32, return_sequences=True)),
+        tf.keras.layers.BatchNormalization(),
+        tf.keras.layers.Dropout(0.2),
+        tf.keras.layers.Dense(1, activation="tanh", kernel_initializer="glorot_uniform")
     ])
     return model
 
 def gru_model(look_back, n_features):
     model = tf.keras.Sequential([
-        tf.keras.layers.Bidirectional(tf.keras.layers.GRU(128, return_sequences=True), input_shape=(look_back, n_features)),
-        tf.keras.layers.Dropout(0.2),  # Adjusted dropout rate
-        tf.keras.layers.Bidirectional(tf.keras.layers.GRU(64, return_sequences=True)),  # Additional GRU layer
-        tf.keras.layers.Dropout(0.2),  # Adjusted dropout rate
-        tf.keras.layers.Bidirectional(tf.keras.layers.GRU(32)),  # Additional GRU layer
-        tf.keras.layers.Dropout(0.2),  # Adjusted dropout rate
-        tf.keras.layers.Dense(1, activation="linear")
+        tf.keras.layers.Bidirectional(tf.keras.layers.GRU(64, return_sequences=True), input_shape=(look_back, n_features)),
+        tf.keras.layers.BatchNormalization(),
+        tf.keras.layers.Dropout(0.1),
+        tf.keras.layers.Dense(1, activation="tanh")
     ])
     return model
 
