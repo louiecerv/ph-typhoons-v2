@@ -304,14 +304,14 @@ def app():
             st.write(text)
 
 def lstm_model(look_back, n_features):
-    model = tf.keras.Sequential([
-        tf.keras.layers.Bidirectional(tf.keras.layers.GRU(64, return_sequences=True), input_shape=(look_back, n_features)),
-        tf.keras.layers.BatchNormalization(),
+    model =  tf.keras.Sequential([  
+        tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(128, return_sequences=True), input_shape=(look_back, n_features)),
+        tf.keras.layers.Dropout(0.3),
+        tf.keras.layers.GRU(64, return_sequences=True),  # Another GRU layer
         tf.keras.layers.Dropout(0.2),
-        tf.keras.layers.Bidirectional(tf.keras.layers.GRU(32, return_sequences=True)),
-        tf.keras.layers.BatchNormalization(),
-        tf.keras.layers.Dropout(0.2),
-        tf.keras.layers.Dense(1, activation="tanh", kernel_initializer="glorot_uniform")
+        tf.keras.layers.GRU(32),  # Reduced units for final layer
+        tf.keras.layers.Dropout(0.1),
+        tf.keras.layers.Dense(1)
     ])
     return model
 
